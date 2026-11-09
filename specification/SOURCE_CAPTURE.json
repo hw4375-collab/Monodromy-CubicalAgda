@@ -1,0 +1,18 @@
+{
+  "experiment_id": "MON-EXP-003",
+  "specification_id": "NLAB-MONODROMY-S4-FROZEN-V2",
+  "source_url": "https://ncatlab.org/nlab/show/monodromy#InHomotopyTypeTheory",
+  "frozen_source": {
+    "retrieved_at": "2026-11-09",
+    "observed_page_revision_timestamp": "2026-11-09 12:39:29",
+    "page_sha256": "7bf01ada3017026fb9e7539142af5c05853565f0f718a56d85b980c0bfdd6063",
+    "section_sha256": "0ee7bfe043ac0386ad95ed2e652ca8ce454f1cc989a6f0ced037f9c58455e327"
+  },
+  "approved_editorial_corrections": [
+    "Render the monodromy mapping component as \\gamma\\longmapsto\\gamma_*.",
+    "Resolve the internal reference for path composition."
+  ],
+  "redistribution_note": "Raw nLab XHTML captures are intentionally omitted from this public release. This metadata preserves provenance without redistributing third-party page content.",
+  "human_review_status": "pending",
+  "intended_reviewer_id": "REV-001"
+}

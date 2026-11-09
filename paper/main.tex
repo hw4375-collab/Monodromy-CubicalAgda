@@ -1,0 +1,202 @@
+\documentclass[11pt,reqno]{amsart}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{lmodern,microtype}
+\usepackage{amsmath,amssymb,amsthm,mathtools,mathrsfs}
+\usepackage{tikz-cd}
+\usepackage{listings}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage[nameinlink,noabbrev,capitalise]{cleveref}
+\newtheoremstyle{mytheorem}{10pt}{10pt}{\itshape}{}{\bfseries}{.}{0.5em}{}
+\newtheoremstyle{mydefinition}{10pt}{10pt}{\normalfont}{}{\bfseries}{.}{0.5em}{}
+\theoremstyle{mytheorem}
+\newtheorem{proposition}{Proposition}[section]
+\theoremstyle{mydefinition}
+\newtheorem{definition}[proposition]{Definition}
+\newtheorem{remark}[proposition]{Remark}
+\DeclareMathOperator{\Aut}{Aut}
+\DeclareMathOperator{\hofib}{hofib}
+\newcommand{\Type}{\mathsf{Type}}
+\newcommand{\ag}[1]{\texttt{#1}}
+\lstset{basicstyle=\ttfamily\small,frame=single,columns=fullflexible,keepspaces=true}
+
+\title[Monodromy via Type Transport]{Monodromy via Type Transport:\\A Cubical Agda Formalization}
+\author{Hongwei (Alex) Wang}
+\address{New York University Abu Dhabi, Abu Dhabi, United Arab Emirates}
+\email{hw4375@nyu.edu}
+\date{2026-11-09}
+\thanks{\textbf{Preliminary Draft --- Mathematical and Semantic Review Pending.} AI assistance was used in preparing the formalization and this source-informed reconstruction. It is not a mathematical author, and this attribution is not evidence of completed human review.}
+
+\begin{document}
+\begin{abstract}
+We give a source-indexed Cubical Agda formalization of the constructions in a
+frozen version of the nLab section ``Monodromy: In homotopy type theory.''
+Starting from a family $P:B\to\Type$, the checked development identifies the
+homotopy fiber of the dependent projection, constructs transport and its
+equivalence structure, and records its unit and composition laws.  Restriction
+to loops yields fiber monodromy.  For a chosen fiber point, this produces a
+pointed equivalence to the transported basepoint and hence group equivalences
+of based homotopy groups.  An explicit path between basepoints gives the
+corresponding change-of-basepoint map.  No fundamental-group action or
+higher-coherent action structure is claimed.
+\end{abstract}
+\maketitle
+
+\section{Introduction}
+
+This article accompanies the verified module \ag{NLabMonodromy.agda}.  Its
+scope is deliberately fixed by the frozen nLab source recorded in the
+experiment directory \cite{nlab}.  The source was available while this paper
+was generated; hence this is a \emph{source-informed reconstruction}, not a
+blind reverse-translation evaluation.  The purpose is to exhibit, declaration
+by declaration, what the checked code expresses and what it does not express.
+
+We use the standard perspective in which a dependent family is a fibration in
+the homotopy-theoretic sense of type theory \cite[\S2.3]{hott}.  This does not
+assert the classical Serre lifting property.  The relevant equality structure
+is supplied by the type theory and made explicit below.
+
+\section{Type families and homotopy fibers}
+
+Let $B:\Type$ and $P:B\to\Type$.  Set
+\begin{equation}\label{eq:total}
+ E\coloneqq\sum_{b:B}P(b),\qquad \mathsf{pr}_1:E\to B.
+\end{equation}
+For $b:B$, the dependent projection occurs in the homotopy-pullback square
+\[
+\begin{tikzcd}[column sep=large,row sep=large]
+ P(b) \arrow[r] \arrow[d] & E \arrow[d,"\mathsf{pr}_1"]\\
+ {*} \arrow[r,"b"'] & B.
+\end{tikzcd}
+\]
+The formal evidence is not a strict pullback assertion, but the checked
+equivalence
+\begin{equation}\label{eq:fiber}
+ \hofib_{\mathsf{pr}_1}(b)\simeq P(b),
+ \qquad \hofib_f(b)\coloneqq\sum_{e:E}(f(e)=b).
+\end{equation}
+In the module, the source-indexed declaration is
+\ag{total-hofib}\ensuremath{\simeq}.  It is
+obtained from the Cubical Library declaration \ag{fiberProjEquiv}, whose
+orientation is reversed by the library operation \ag{invEquiv}.  The local
+projection is exactly the following checked code excerpt.
+\begin{lstlisting}
+total-projection P = fst
+\end{lstlisting}
+
+\section{Transport and monodromy}
+
+For $p:x=_B y$, transport in $P$ gives a function
+\begin{equation}\label{eq:transport-function}
+ p_*:P(x)\longrightarrow P(y).
+\end{equation}
+The local declaration \ag{transport-map} is intentionally kept distinct from
+\ag{transport-equiv}, the latter being the equivalence $P(x)\simeq P(y)$.
+The Cubical Library supplies the equivalence package through \ag{substEquiv};
+its inverse data is mathematically transport along the inverse path.  The
+actual local definition of the function is
+\begin{lstlisting}
+transport-map P p = subst P p
+\end{lstlisting}
+
+The two elementary compatibilities are checked as pointwise paths.  Thus for
+$u:P(x)$,
+\begin{equation}\label{eq:unit}
+ (\mathsf{refl}_x)_*(u)=u,
+\end{equation}
+and, for $p:x=y$ and $q:y=z$,
+\begin{equation}\label{eq:composition}
+ (p\mathbin\cdot q)_*(u)=q_*\bigl(p_*(u)\bigr).
+\end{equation}
+Here Cubical Agda's $p\mathbin\cdot q$ means first $p$, then $q$.  Equation
+\eqref{eq:composition} is represented by \ag{transport-comp}, using the
+library path \ag{substComposite}; it is the evidence for the triangle
+\[
+\begin{tikzcd}[column sep=large,row sep=large]
+ P(x) \arrow[r,"p_*"] \arrow[dr,"(p\cdot q)_*"'] & P(y) \arrow[d,"q_*"]\\
+ & P(z).
+\end{tikzcd}
+\]
+These are propositional, pointwise equalities.  They are not claims that the
+two maps are definitionally equal.
+
+Fixing $b_0:B$ and writing $F=P(b_0)$, transport along loops defines
+\begin{equation}\label{eq:monodromy}
+ \operatorname{mon}_{P,b_0}:\Omega(B,b_0)\longrightarrow\Aut(F),
+ \qquad \gamma\longmapsto\gamma_*.
+\end{equation}
+The declaration \ag{monodromy-map} uses the library pointed loop space
+\ag{Omega}; \ag{monodromy-refl} and \ag{monodromy-comp} provide the
+corresponding pointwise unit and composition paths.  No higher coherence data
+and no descent from the loop space to $\pi_1(B,b_0)$ is present.
+
+\section{Pointed transport and homotopy groups}
+
+Let $f_0:F$ and $gamma:b_0=b_0$.  Put $f_1\coloneqq\gamma_*(f_0)$.  The
+important point is that $f_1=f_0$ is not a consequence of transport.  The
+checked statement is instead the pointed equivalence
+\begin{equation}\label{eq:pointed}
+ (F,f_0)\simeq_*(F,f_1),
+\end{equation}
+represented by \ag{pointed-monodromy}.  Its basepoint witness is definitionally
+the reflexivity path because the target is based at the transported point.
+
+The library construction \ag{piIso} now yields a \emph{group} equivalence,
+not merely an equivalence of carriers:
+\begin{equation}\label{eq:pi}
+ \pi_n(F,f_0)\cong\pi_n(F,f_1),\qquad n\geq1.
+\end{equation}
+The local declaration is \ag{pointed-monodromy-}\ensuremath{\pi}.  Cubical Library's
+\ag{piGr n} presents conventional $\pi_{n+1}$, so the natural-number index
+used in the code covers exactly the range $n\geq1$ in \eqref{eq:pi}.
+
+Finally, if a path $r:f_1=f_0$ is supplied,
+\ag{basepoint-change}\ensuremath{\bullet} and
+\ag{basepoint-change-}\ensuremath{\pi} give the corresponding pointed
+equivalence and group isomorphism.  The hypothesis $r$ remains explicit.  In particular, these
+conditional maps do not supply an unconditional fundamental-group action.
+
+\section{Formalization and verification}
+
+The formal module has ten source statement identifiers, \ag{MON-HOTT-001}
+through \ag{MON-HOTT-010}.  The total-space, transport, and monodromy
+declarations are local source-indexed wrappers; the fiber, transport,
+pointed-type, and homotopy-group mechanisms are attributed Cubical Library
+results.  The pinned environment is Agda \ag{2.8.0-3d04bac} and Cubical Agda
+Library v0.9, commit
+\ag{87af036ebd1c87956cf08fea44e62c7cf76392ca}.
+
+The module type-checks with the command recorded in the experiment report.
+It has no holes, unsolved metas, local postulates, or termination overrides.
+The JSONL alignment records give full Agda types, source locations, assumptions,
+dependencies, and translation classifications for every frozen claim.
+
+\section{Limitations}
+
+Machine checking establishes that the formal declarations are accepted in the
+pinned imported context.  It does not establish that this exposition and the
+frozen source are semantically identical.  Mathematical correctness,
+formalization correctness, and semantic alignment remain pending review by
+Hongwei (Alex) Wang (REV-001).
+
+The present code does not produce a fundamental-group action, show
+representative-independence after truncation, choose basepoint-return paths,
+or verify their compatibility with loop composition.  Those omissions are
+intentional boundaries of the checked result, not suppressed proof gaps.
+
+\begin{thebibliography}{9}
+\bibitem{nlab}
+nLab authors, \emph{Monodromy}, ``In homotopy type theory.''
+\newblock \url{https://ncatlab.org/nlab/show/monodromy#InHomotopyTypeTheory}.
+
+\bibitem{hott}
+The Univalent Foundations Program, \emph{Homotopy Type Theory: Univalent
+Foundations of Mathematics}, Institute for Advanced Study, 2013.
+\newblock \url{https://homotopytypetheory.org/book/}.
+
+\bibitem{cubical}
+Cubical Agda Library contributors, \emph{Cubical Agda Library}, version 0.9,
+commit \texttt{87af036ebd1c87956cf08fea44e62c7cf76392ca}.
+\end{thebibliography}
+\end{document}

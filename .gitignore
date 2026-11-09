@@ -1,0 +1,17 @@
+# Agda
+*.agdai
+*.agda-lib.cache
+
+# LaTeX build products (the curated paper PDF is tracked)
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+
+# Editors and operating systems
+.DS_Store
+.vscode/

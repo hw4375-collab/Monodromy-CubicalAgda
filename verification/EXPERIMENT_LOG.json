@@ -1,0 +1,36 @@
+{
+  "experiment_id": "MON-EXP-003",
+  "started_at_utc": "2026-11-09T13:10:59.973786+00:00",
+  "ended_at_utc": "2026-11-09T13:23:42.065022+00:00",
+  "monotonic_elapsed_seconds": 762.091,
+  "total_wall_clock_seconds": 762.091,
+  "stage_durations_seconds": {
+    "source_investigation": null,
+    "style_inspection": null,
+    "agda_implementation": null,
+    "agda_verification_and_debugging": null,
+    "alignment_generation": null,
+    "shadow_paper_generation_and_compilation": null,
+    "final_verification": null
+  },
+  "stage_duration_note": "Only the whole-experiment monotonic timer was instrumented; independent stage timings are unavailable and not estimated.",
+  "agda_typecheck_attempts": 3,
+  "agda_typecheck_failures": 1,
+  "agda_typecheck_successes": 2,
+  "latex_build_attempts": 3,
+  "latex_build_failures": 0,
+  "latex_build_successes": 3,
+  "implementation_iterations": 1,
+  "local_declarations": 16,
+  "reused_library_declarations": 9,
+  "technical_auxiliary_declarations": 4,
+  "successfully_checked_source_statements": 10,
+  "human_interventions": 0,
+  "token_cost_model_time": "unavailable",
+  "remaining_gaps": [
+    "No fundamental-group action.",
+    "No descent from loops to π₁ or representative-independence proof.",
+    "No coherent selection of basepoint-return paths.",
+    "No higher coherence package."
+  ]
+}
